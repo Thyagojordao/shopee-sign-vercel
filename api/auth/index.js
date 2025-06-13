@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-module.exports = (req, res) => {
+module.exports = function (req, res) {
   const { partner_id, path, timestamp, partner_key } = req.query;
 
   if (!partner_id || !path || !timestamp || !partner_key) {
