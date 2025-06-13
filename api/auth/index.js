@@ -1,6 +1,10 @@
 const crypto = require('crypto');
 
-module.exports = (req, res) => {
+module.exports = function (req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
   const { partner_id, path, timestamp, partner_key } = req.query;
 
   if (!partner_id || !path || !timestamp || !partner_key) {
@@ -13,5 +17,5 @@ module.exports = (req, res) => {
     .update(baseString)
     .digest('hex');
 
-  res.status(200).json({ sign });
+  return res.status(200).json({ sign });
 };
