@@ -9,12 +9,13 @@ module.exports = (req, res) => {
 
   try {
     const baseString = `${partner_id}${path}${timestamp}`;
-    const sign = crypto.createHmac('sha256', Buffer.from(partner_key, 'hex'))
+    const sign = crypto
+      .createHmac('sha256', Buffer.from(partner_key, 'hex'))
       .update(baseString)
       .digest('hex');
 
-    return res.status(200).json({ sign });
+    res.status(200).json({ sign });
   } catch (error) {
-    return res.status(500).json({ error: 'Sign generation failed', details: error.message });
+    res.status(500).json({ error: 'Failed to generate sign', details: error.message });
   }
 };
