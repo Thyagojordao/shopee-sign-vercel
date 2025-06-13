@@ -1,10 +1,6 @@
 const crypto = require('crypto');
 
-module.exports = function (req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
-
+module.exports = (req, res) => {
   const { partner_id, path, timestamp, partner_key } = req.query;
 
   if (!partner_id || !path || !timestamp || !partner_key) {
@@ -12,8 +8,7 @@ module.exports = function (req, res) {
   }
 
   const baseString = `${partner_id}${path}${timestamp}`;
-  const sign = crypto
-    .createHmac('sha256', Buffer.from(partner_key, 'hex'))
+  const sign = crypto.createHmac('sha256', Buffer.from(partner_key, 'hex'))
     .update(baseString)
     .digest('hex');
 
