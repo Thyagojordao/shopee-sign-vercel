@@ -1,6 +1,6 @@
-import crypto from 'crypto';
+const crypto = require('crypto');
 
-export default function handler(req, res) {
+module.exports = (req, res) => {
   const { partner_id, path, timestamp, partner_key } = req.query;
 
   if (!partner_id || !path || !timestamp || !partner_key) {
@@ -9,13 +9,12 @@ export default function handler(req, res) {
 
   try {
     const baseString = `${partner_id}${path}${timestamp}`;
-    const sign = crypto
-      .createHmac('sha256', Buffer.from(partner_key, 'hex'))
+    const sign = crypto.createHmac('sha256', Buffer.from(partner_key, 'hex'))
       .update(baseString)
       .digest('hex');
 
-    res.status(200).json({ sign });
+    return res.status(200).json({ sign });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    return res.status(500).json({ error: 'Sign generation failed', details: error.message });
   }
-}
+};
