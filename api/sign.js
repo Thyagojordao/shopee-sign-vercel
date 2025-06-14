@@ -9,12 +9,11 @@ module.exports = (req, res) => {
       return res.status(400).json({ error: 'Missing required parameters or partner key env not set.' });
     }
 
-    // Limpeza da Partner Key: remove quebras de linha internas e espaços invisíveis
+    // Limpeza da partner key (remove espaços e quebras de linha invisíveis)
     partnerKey = partnerKey.replace(/(\r\n|\n|\r)/gm, '').trim();
 
     const baseString = `${partner_id}${path}${timestamp}`;
 
-    // Log da string base (opcional, para debug na Vercel)
     console.log('🔑 BaseString:', baseString);
     console.log('🔑 PartnerKey limpo:', partnerKey);
 
