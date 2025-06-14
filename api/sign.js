@@ -9,15 +9,19 @@ module.exports = (req, res) => {
       return res.status(400).json({ error: 'Missing required parameters or partner key env not set.' });
     }
 
-    // Limpar a partnerKey (remove espaços, quebras de linha e caracteres invisíveis)
-    partnerKey = partnerKey.trim().replace(/[\r\n]/g, '');
+    // Limpeza TOTAL da partnerKey: Remove espaços, quebras de linha, tabs e tudo invisível
+    partnerKey = partnerKey.replace(/\s+/g, '').trim();
 
     const baseString = `${partner_id}${path}${timestamp}`;
-    const sign = crypto.createHmac('sha256', Buffer.from(partnerKey, 'hex')).update(baseString).digest('hex');
 
-    console.log('BaseString:', baseString);
-    console.log('PartnerKey limpa:', partnerKey);
-    console.log('Sign gerado:', sign);
+    const sign = crypto
+      .createHmac('sha256', Buffer.from(partnerKey, 'hex'))
+      .update(baseString)
+      .digest('hex');
+
+    console.log('👉 BaseString:', baseString);
+    console.log('👉 PartnerKey Limpo:', partnerKey);
+    console.log('👉 Sign gerado:', sign);
 
     res.status(200).json({ sign });
   } catch (error) {
