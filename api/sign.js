@@ -12,7 +12,7 @@ module.exports = (req, res) => {
     const baseString = `${partner_id}${path}${timestamp}`;
 
     const sign = crypto
-      .createHmac('sha256', partnerKey)  // <-- Correto: usando direto como string UTF-8
+      .createHmac('sha256', partnerKey)
       .update(baseString)
       .digest('hex');
 
