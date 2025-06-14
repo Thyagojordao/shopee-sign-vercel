@@ -1,21 +1,26 @@
 const crypto = require('crypto');
 
 module.exports = (req, res) => {
-  const { partner_id, path, timestamp, partner_key } = req.query;
-
-  if (!partner_id || !path || !timestamp || !partner_key) {
-    return res.status(400).json({ error: 'Missing parameters' });
-  }
-
   try {
+    const partner_id = req.query.partner_id;
+    const path = req.query.path;
+    const timestamp = req.query.timestamp;
+    const partner_key = req.query.partner_key;
+
+    if (!partner_id || !path || !timestamp || !partner_key) {
+      return res.status(400).json({ error: 'Missing parameters' });
+    }
+
     const baseString = `${partner_id}${path}${timestamp}`;
+
     const sign = crypto
-      .createHmac('sha256', Buffer.from(partner_key, 'hex'))
+      .createHmac('sha256', Buffer.from(partner_key, 'hex'))  // Aqui a correção crítica
       .update(baseString)
       .digest('hex');
 
-    res.status(200).json({ sign });
+    return res.json({ sign });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to generate sign', details: error.message });
+    console.error('Erro ao gerar sign:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
