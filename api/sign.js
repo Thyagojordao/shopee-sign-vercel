@@ -11,13 +11,16 @@ module.exports = (req, res) => {
 
     const baseString = `${partner_id}${path}${timestamp}`;
 
+    console.log('📝 BaseString:', baseString);
+    console.log('🔑 Partner Key:', partnerKey);
+
     const sign = crypto.createHmac('sha256', Buffer.from(partnerKey, 'utf-8'))
       .update(baseString)
       .digest('hex');
 
-    res.status(200).json({ sign });
+    res.status(200).json({ sign, baseString });
   } catch (error) {
-    console.error('Erro ao gerar sign:', error);
+    console.error('❌ Erro ao gerar sign:', error);
     res.status(500).json({ error: 'Erro interno na geração do sign', details: error.message });
   }
 };
