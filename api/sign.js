@@ -10,7 +10,10 @@ module.exports = (req, res) => {
     }
 
     const baseString = `${partner_id}${path}${timestamp}`;
-    const sign = crypto.createHmac('sha256', partnerKey).update(baseString).digest('hex');
+
+    const sign = crypto.createHmac('sha256', Buffer.from(partnerKey, 'utf-8'))
+      .update(baseString)
+      .digest('hex');
 
     res.status(200).json({ sign });
   } catch (error) {
