@@ -6,14 +6,15 @@ module.exports = (req, res) => {
     const partnerKey = process.env.PARTNER_KEY;
 
     if (!partner_id || !path || !timestamp || !partnerKey) {
-      return res.status(400).json({ error: 'Missing required parameters or partner key env not set.' });
+      return res.status(400).json({ error: 'Missing required parameters or partner key not set.' });
     }
 
-    // Monta a base string correta dependendo se tem access_token e shop_id (pedido) ou não (auth)
     let baseString = `${partner_id}${path}${timestamp}`;
     if (access_token && shop_id) {
       baseString += `${access_token}${shop_id}`;
     }
+
+    console.log('Base String usada para o SIGN:', baseString);  // <-- LOG IMPORTANTE
 
     const sign = crypto
       .createHmac('sha256', partnerKey)
