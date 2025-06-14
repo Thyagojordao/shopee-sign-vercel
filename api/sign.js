@@ -6,11 +6,10 @@ module.exports = (req, res) => {
     const partnerKey = process.env.PARTNER_KEY;
 
     if (!partner_id || !path || !timestamp || !partnerKey) {
-      return res.status(400).json({ error: 'Missing parameters or partner_key env' });
+      return res.status(400).json({ error: 'Missing required parameters or partner key env not set.' });
     }
 
     const baseString = `${partner_id}${path}${timestamp}`;
-
     const sign = crypto
       .createHmac('sha256', partnerKey)
       .update(baseString)
