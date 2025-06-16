@@ -3,34 +3,32 @@ const crypto = require('crypto');
 module.exports = (req, res) => {
   try {
     const { partner_id, path, timestamp } = req.query;
-    let partnerKey = process.env.PARTNER_KEY;
+    const partnerKey = process.env.PARTNER_KEY;
 
     if (!partner_id || !path || !timestamp || !partnerKey) {
       return res.status(400).json({ error: 'Missing required parameters or partner key env not set.' });
     }
 
-    // Corrige a Partner Key: remove espaços, quebras de linha e invisíveis
-    partnerKey = partnerKey.trim().replace(/(\r\n|\n|\r|\s)/gm, '');
+    // Corrigindo espaços, quebras e invisíveis na partnerKey
+    const cleanPartnerKey = partnerKey.trim().replace(/(\r\n|\n|\r)/gm, '');
 
-    // Corrige o path: remove espaços invisíveis
-    const cleanedPath = path.trim();
+    // Montando a Base String
+    const baseString = `${partner_id}${path}${timestamp}`;
 
-    // Monta a string base corretamente
-    const baseString = `${partner_id}${cleanedPath}${timestamp}`;
+    // Criando o SIGN
+    const sign = crypto
+      .createHmac('sha256', Buffer.from(cleanPartnerKey, 'hex'))
+      .update(baseString)
+      .digest('hex');
 
-    // Log para você ver no painel da Vercel
-    console.log('🚩 PartnerKey limpo:', partnerKey);
-    console.log('🚩 BaseString:', baseString);
-
-    const sign = crypto.createHmac('sha256', Buffer.from(partnerKey, 'hex'))
-                       .update(baseString)
-                       .digest('hex');
-
+    // Log opcional (você pode remover na produção)
+    console.log('🔑 PartnerKey limpa:', cleanPartnerKey);
+    console.log('📝 BaseString:', baseString);
     console.log('✅ Sign gerado:', sign);
 
     res.status(200).json({ sign });
   } catch (error) {
-    console.error('❌ Erro ao gerar sign:', error);
-    res.status(500).json({ error: 'Erro interno na geração do sign', details: error.message });
+    console.error('❌ Erro ao gerar SIGN:', error);
+    res.status(500).json({ error: 'Erro interno na geração de SIGN', details: error.message });
   }
 };
