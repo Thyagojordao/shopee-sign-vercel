@@ -2,20 +2,33 @@ const crypto = require('crypto');
 
 module.exports = (req, res) => {
   try {
-    const { partner_id, path, timestamp, partner_key } = req.query;
+    const { partner_id, path, timestamp } = req.query;
+    let partnerKey = process.env.PARTNER_KEY;
 
-    if (!partner_id || !path || !timestamp || !partner_key) {
-      return res.status(400).json({ error: 'Missing required query parameters' });
+    if (!partner_id || !path || !timestamp || !partnerKey) {
+      return res.status(400).json({ error: 'Missing required parameters or partner key env not set.' });
     }
 
-    const baseString = `${partner_id}${path}${timestamp}`;
-    const sign = crypto.createHmac('sha256', Buffer.from(partner_key, 'utf-8'))
+    // Corrigir PartnerKey: tira espaços, quebras e caracteres invisíveis
+    partnerKey = partnerKey.trim().replace(/(\r\n|\n|\r|\s)/gm, '');
+
+    // Corrigir path: garantir sem espaços ou caracteres invisíveis
+    const cleanedPath = path.trim();
+
+    const baseString = `${partner_id}${cleanedPath}${timestamp}`;
+
+    console.log('PartnerKey limpo:', partnerKey);
+    console.log('BaseString:', baseString);
+
+    const sign = crypto.createHmac('sha256', Buffer.from(partnerKey, 'hex'))
                        .update(baseString)
                        .digest('hex');
 
+    console.log('Sign gerado:', sign);
+
     res.status(200).json({ sign });
   } catch (error) {
-    console.error('Error generating sign:', error);
-    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    console.error('Erro ao gerar sign:', error);
+    res.status(500).json({ error: 'Erro interno na geração do sign', details: error.message });
   }
 };
