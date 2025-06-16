@@ -9,25 +9,30 @@ module.exports = (req, res) => {
       return res.status(400).json({ error: 'Missing required parameters or partner key env not set.' });
     }
 
-    // Limpar a partner key de quebras, espaços, invisíveis
+    // Limpeza da Partner Key
     const cleanPartnerKey = partnerKey.trim().replace(/(\r\n|\n|\r|\s)/gm, '');
 
-    // Montar a Base String sem encode (conforme documentação Shopee)
+    // Montar Base String (sem encode)
     const baseString = `${partner_id}${path}${timestamp}`;
 
-    // Criar o SIGN com Buffer HEX
+    // Criar assinatura
     const sign = crypto
       .createHmac('sha256', Buffer.from(cleanPartnerKey, 'hex'))
       .update(baseString)
       .digest('hex');
 
-    console.log('🔑 PartnerKey limpa:', cleanPartnerKey);
-    console.log('📝 BaseString:', baseString);
-    console.log('✅ Sign gerado:', sign);
+    console.log('--- DEBUG ---');
+    console.log('PartnerId:', partner_id);
+    console.log('Path:', path);
+    console.log('Timestamp:', timestamp);
+    console.log('BaseString:', baseString);
+    console.log('PartnerKey limpa:', cleanPartnerKey);
+    console.log('SIGN final:', sign);
+    console.log('--- END DEBUG ---');
 
     res.status(200).json({ sign });
   } catch (error) {
-    console.error('❌ Erro na geração de SIGN:', error);
+    console.error('Erro na geração do SIGN:', error);
     res.status(500).json({ error: 'Erro interno ao gerar SIGN', details: error.message });
   }
 };
