@@ -1,34 +1,33 @@
 const crypto = require('crypto');
 
-module.exports = (req, res) => {
+export default function handler(req, res) {
   try {
     const { partner_id, path, timestamp } = req.query;
     let partnerKey = process.env.PARTNER_KEY;
 
     if (!partner_id || !path || !timestamp || !partnerKey) {
-      return res.status(400).json({ error: 'Missing required parameters or partner key env not set.' });
+      return res.status(400).json({ error: 'Missing required parameters or partner key' });
     }
 
-    // Corrigir PartnerKey: tira espaços, quebras e caracteres invisíveis
-    partnerKey = partnerKey.trim().replace(/(\r\n|\n|\r|\s)/gm, '');
+    // Remover quebras e espaços invisíveis do partnerKey
+    partnerKey = partnerKey.trim().replace(/\s/g, '');
 
-    // Corrigir path: garantir sem espaços ou caracteres invisíveis
-    const cleanedPath = path.trim();
+    // String base exatamente como a Shopee pede: partner_id + path (sem encode) + timestamp
+    const baseString = `${partner_id}${path}${timestamp}`;
 
-    const baseString = `${partner_id}${cleanedPath}${timestamp}`;
-
-    console.log('PartnerKey limpo:', partnerKey);
-    console.log('BaseString:', baseString);
+    console.log("📌 BaseString:", baseString);
+    console.log("🔑 PartnerKey limpo:", partnerKey);
 
     const sign = crypto.createHmac('sha256', Buffer.from(partnerKey, 'hex'))
                        .update(baseString)
                        .digest('hex');
 
-    console.log('Sign gerado:', sign);
+    console.log("✅ Sign gerado:", sign);
 
     res.status(200).json({ sign });
+
   } catch (error) {
-    console.error('Erro ao gerar sign:', error);
+    console.error('❌ Erro ao gerar sign:', error);
     res.status(500).json({ error: 'Erro interno na geração do sign', details: error.message });
   }
-};
+}
